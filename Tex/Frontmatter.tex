@@ -1,31 +1,28 @@
 %---------------------------------------------------------------------------%
 %->> Frontmatter
 %---------------------------------------------------------------------------%
-%-
-%-> 生成封面
-%-
-\maketitle% 生成中文封面
-\MAKETITLE% 生成英文封面
-%-
-%-> 作者声明
-%-
-\makedeclaration% 生成声明页
-%-
-%-> 中文摘要
-%-
-\intobmk\chapter*{摘\quad 要}% 显示在书签但不显示在目录
-\setcounter{page}{1}% 开始页码
-\pagenumbering{Roman}% 页码符号
+\maketitle
+\MAKETITLE
 
-本文是中国科学院大学学位论文模板ucasthesis的使用说明文档。主要内容为介绍\LaTeX{}文档类ucasthesis的用法，以及如何使用\LaTeX{}快速高效地撰写学位论文。
+\intobmk\chapter*{摘\quad 要}
+\setcounter{page}{1}
+\pagenumbering{Roman}
 
-\keywords{中国科学院大学，学位论文，\LaTeX{}模板}% 中文关键词
-%-
-%-> 英文摘要
-%-
-\intobmk\chapter*{Abstract}% 显示在书签但不显示在目录
+NP 完全性将大量组合问题置于统一的困难性框架中，为问题的计算难度比较和高效算法存在的可能性分析提供理论依据。证明一个问题是 NP 完全的，核心难点在于需要通过多项式时间归约证明其 NP 困难性。归约需要把任意源问题实例变换为目标问题实例，同时需要保证该映射满足多项式约束，以及源、目标实例的判定结果等价。源问题选择失当、参数变换错误等，都可能使整个证明不成立。归约的证明过程往往依赖研究者的经验和创新性构造，需要在文献检索、候选构造、实例分析和证明整理之间反复推敲。
 
-This paper is a help documentation for the \LaTeX{} class ucasthesis, which is  a thesis template for the University of Chinese Academy of Sciences. The main content is about how to use the ucasthesis, as well as how to write thesis efficiently by using \LaTeX{}.
+归约证明的候选空间难以穷举，错误又常暴露在实例分析和证明展开，单纯依赖创造性和经验难以系统搜索。而人工智能擅长信息综合和搜索，适合辅助这一过程。本文将归约任务定义为程序构造问题，利用大语言模型提出候选源问题与归约映射。智能体运行与评测框架向模型提供程序执行信息、格式检查和实例判定等反馈。模型依据各阶段反馈在检索、构造、核验和证明整理之间迭代，最终得到正确的归约证明。
 
-\KEYWORDS{University of Chinese Academy of Sciences (UCAS), Thesis, \LaTeX{} Template}% 英文关键词
+为考察上述方法的有效性，本文构建了一个已知归约任务的数据集。早期 132 项任务集合的实验从单次生成逐步引入基础代码智能体、初步归约评测工具和实例级判定反馈，任务通过率由 24.2\% 提高到 60\% 以上。这一趋势表明，面向探索过程提供相应信息和执行反馈有助于修正候选证明，为本文的方法提供了初步的有效性验证。
+
+\keywords{NP 完全性，多项式时间归约，大语言模型，代码智能体，人工智能辅助证明}
+
+\intobmk\chapter*{Abstract}
+
+NP-completeness places a broad class of combinatorial problems within a common framework of computational hardness, providing a theoretical basis for comparing problem difficulty and examining the possibility of efficient algorithms. The central challenge in proving a problem NP-complete is often to establish its NP-hardness through a polynomial-time reduction. Such a reduction transforms every instance of a source problem into an instance of the target problem while satisfying polynomial resource bounds and preserving the YES/NO answer. An unsuitable source problem or an incorrect parameter transformation can invalidate the entire proof. Reduction proofs therefore rely heavily on a researcher's experience and creative constructions, with repeated movement among literature retrieval, candidate construction, instance analysis, and proof development.
+
+The space of candidate reductions is difficult to enumerate, and errors often emerge only during instance analysis or proof development. Creativity and experience alone are insufficient for a systematic search. Artificial intelligence (AI) is well suited to assist this process because of its capacity for information synthesis and search. This study formulates reduction construction as a programming task and uses a large language model (LLM) to propose candidate source problems and reduction mappings. An agent harness supplies the model with feedback from program execution, format validation, and instance decisions. Guided by feedback from different stages, the model iterates among retrieval, construction, checking, and proof development. The final output is required to constitute a correct reduction proof.
+
+To assess the effectiveness of this approach, this study constructs a dataset of known reduction tasks. Early experiments used a set of 132 tasks and progressively introduced a base code agent, preliminary reduction evaluation tools, and instance-level oracle feedback. The task pass rate increased from 24.2\% under one-shot generation to above 60\%. This trend indicates that information and execution feedback aligned with the exploratory process help revise candidate proofs, providing preliminary evidence for the effectiveness of the proposed method.
+
+\KEYWORDS{NP-Completeness, Polynomial-Time Reduction, LLM, Code Agent, AI-Assisted Proof}
 %---------------------------------------------------------------------------%

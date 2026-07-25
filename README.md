@@ -1,5 +1,29 @@
 # `ucasthesis` 国科大学位论文 LaTeX 模板 [最新样式]
 
+## 编译本项目
+
+在项目根目录运行：
+
+```bash
+./artratex.sh
+```
+
+无参数时默认按 `xa Thesis.tex` 编译。原有调用方式仍然可用：
+
+```bash
+./artratex.sh xa Thesis.tex
+```
+
+脚本默认自动选择编译后端。系统存在 XeLaTeX 和 BibTeX 时使用原始编译流程，否则切换到 Tectonic。生成文件位于 `output/pdf/Thesis.pdf`。
+
+可以通过环境变量指定后端、输出目录或编译后打开 PDF：
+
+```bash
+ARTRATEX_BACKEND=tectonic ./artratex.sh
+ARTRATEX_OUTPUT_DIR=output/pdf ./artratex.sh
+ARTRATEX_OPEN_PDF=1 ./artratex.sh
+```
+
 ## 模板下载
 
 * 页面右边点击：**Clone or download -> Download Zip**
@@ -103,4 +127,3 @@
 * `2018-01-28` 基于国科大`2018`新版论文规范进行了重大修改，采用新的封面、声明、页眉页脚样式。展示标题中使用数学公式。
 
 * `2017-05-14` [赵永明, email] ，增加`\citepns{}`和`\citetns{}`命令提供上标引用下混合非上标引用的需求。[臧光明, email] ，添加设定论文为`thesis`或`dissertation`的命令。
-

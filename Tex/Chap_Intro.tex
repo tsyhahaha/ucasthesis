@@ -2,42 +2,42 @@
 
 \section{研究背景}
 
-考虑到许多同学可能缺乏\LaTeX{}使用经验，ucasthesis将\LaTeX{}的复杂性高度封装，开放出简单的接口，以便轻易使用。同时，对用\LaTeX{}撰写论文的一些主要难题，如制图、制表、文献索引等，进行了详细说明，并提供了相应的代码样本，理解了上述问题后，对于初学者而言，使用此模板撰写学位论文将不存在实质性的困难。所以，如果你是初学者，请不要直接放弃，因为同样为初学者的我，十分明白让\LaTeX{}简单易用的重要性，而这正是ucasthesis所追求和体现的。
+NP 完全性将大量组合问题置于多项式时间归约所定义的统一框架中，是比较问题计算难度的重要理论工具。Cook 和 Karp 建立了 NP 完全性与多项式时间归约的基本理论\citep{cook1971complexity,karp1972reducibility}。此后，许多组合问题通过归约获得困难性结论\citep{garey1979computers}。证明一个问题为 NP 完全问题，既要说明该问题属于 NP，也要证明其 NP 困难性。后者通常需要选择一个已知 NP 困难问题，并构造保持判定结果的实例映射。
 
-此中国科学院大学学位论文模板ucasthesis基于中科院数学与系统科学研究院吴凌云研究员的CASthesis模板发展而来。当前ucasthesis模板满足最新的中国科学院大学学位论文撰写要求和封面设定。兼顾操作系统：Windows，Linux，MacOS 和\LaTeX{}编译引擎：pdflatex，xelatex，lualatex。支持中文书签、中文渲染、中文粗体显示、拷贝PDF中的文本到其他文本编辑器等特性。此外，对模板的文档结构进行了精心设计，撰写了编译脚本提高模板的易用性和使用效率。
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.88\textwidth]{npc}
+    \bicaption{NP 完全性的证明条件。}{Proof requirements for NP-completeness.}
+    \label{fig:npc}
+\end{figure}
 
-ucasthesis的目标在于简化学位论文的撰写，利用\LaTeX{}格式与内容分离的特征，模板将格式设计好后，作者可只需关注论文内容。 同时，ucasthesis有着整洁一致的代码结构和扼要的注解，对文档的仔细阅读可为初学者提供一个学习\LaTeX{}的窗口。此外，模板的架构十分注重通用性，事实上，ucasthesis不仅是国科大学位论文模板，同时，通过少量修改即可成为使用\LaTeX{}撰写中英文文章或书籍的通用模板，并为使用者的个性化设定提供了接口。
+设 \(\Sigma\) 为有限字母表，\(\Sigma^*\) 表示由 \(\Sigma\) 中符号组成的所有有限字符串的集合。复杂性理论用语言 \(L\subseteq\Sigma^*\) 表示判定问题。具体问题的输入对象经过编码后成为字符串，其中属于 \(L\) 的字符串称为 YES 实例，不属于 \(L\) 的字符串称为 NO 实例。将源问题和目标问题对应的语言分别记为 \(L_1,L_2\subseteq\Sigma^*\)。若存在多项式时间可计算函数 \(f:\Sigma^*\rightarrow\Sigma^*\)，满足
 
-\section{系统要求}\label{sec:system}
+\begin{equation}
+    \forall x\in\Sigma^*,\qquad
+    x\in L_1 \Longleftrightarrow f(x)\in L_2,
+    \label{eq:many-one-reduction}
+\end{equation}
 
-\href{https://github.com/mohuangrui/ucasthesis}{\texttt{ucasthesis}} 宏包可以在目前主流的 \href{https://en.wikibooks.org/wiki/LaTeX/Introduction}{\LaTeX{}} 编译系统中使用，如\TeX{}Live和MiK\TeX{}。因C\TeX{}套装已停止维护，\textbf{不再建议使用} （请勿混淆C\TeX{}套装与ctex宏包。C\TeX{}套装是集成了许多\LaTeX{}组件的\LaTeX{}编译系统。 \href{https://ctan.org/pkg/ctex?lang=en}{ctex} 宏包如同ucasthesis，是\LaTeX{}命令集，其维护状态活跃，并被主流的\LaTeX{}编译系统默认集成，是几乎所有\LaTeX{}中文文档的核心架构）。推荐的 \href{https://en.wikibooks.org/wiki/LaTeX/Installation}{\LaTeX{}编译系统} 和 \href{https://en.wikibooks.org/wiki/LaTeX/Installation}{\LaTeX{}文本编辑器} 为
-\begin{center}
-    %\footnotesize% fontsize
-    %\setlength{\tabcolsep}{4pt}% column separation
-    %\renewcommand{\arraystretch}{1.5}% row space 
-    \begin{tabular}{lcc}
-        \hline
-        %\multicolumn{num_of_cols_to_merge}{alignment}{contents} \\
-        %\cline{i-j}% partial hline from column i to column j
-        操作系统 & \LaTeX{}编译系统 & \LaTeX{}文本编辑器\\
-        \hline
-        Linux & \href{https://www.tug.org/texlive/acquire-netinstall.html}{\TeX{}Live Full} & \href{http://www.xm1math.net/texmaker/}{Texmaker} 或 Vim\\
-        MacOS & \href{https://www.tug.org/mactex/}{Mac\TeX{} Full} & \href{http://www.xm1math.net/texmaker/}{Texmaker} 或 Texshop\\
-        Windows & \href{https://www.tug.org/texlive/acquire-netinstall.html}{\TeX{}Live Full} 或 \href{https://miktex.org/download}{MiK\TeX{}} & \href{http://www.xm1math.net/texmaker/}{Texmaker}\\
-        \hline
-    \end{tabular}
-\end{center}
+则称 \(L_1\) 可以多项式时间多对一归约到 \(L_2\)，记作 \(L_1\leq_m^p L_2\)。当 \(L_1\) 对应的问题已知为 NP 困难问题时，式~\eqref{eq:many-one-reduction}可用于证明 \(L_2\) 对应问题的 NP 困难性。完整证明需要给出映射 \(f\) 的构造，并分别证明 \(x\in L_1\Rightarrow f(x)\in L_2\) 和 \(f(x)\in L_2\Rightarrow x\in L_1\)。运行时间与输出长度还须受输入长度的多项式限制。
 
-\LaTeX{}编译系统，如\TeX{}Live（Mac\TeX{}为针对MacOS的\TeX{}Live)，用于提供编译环境，\LaTeX{}文本编辑器 (如Texmaker) 用于编辑\TeX{}源文件。请从各软件官网下载安装程序，勿使用不明程序源。\textbf{\LaTeX{}编译系统和\LaTeX{}编辑器分别安装成功后，即完成了\LaTeX{}的系统配置}，无需其他手动干预和配置。若系统原带有旧版的\LaTeX{}编译系统并想安装新版，请\textbf{先卸载干净旧版再安装新版}。
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.88\textwidth]{reduction}
+    \bicaption{多项式时间归约关系。}{Basic relation in polynomial-time reduction.}
+    \label{fig:reduction}
+\end{figure}
 
-\section{问题反馈}
+归约构造的难点不在于复述定义，而在于寻找满足全部条件的映射。源问题选择失当参数变换错误，都可能使证明失败。候选空间通常难以穷举，错误又常在边界实例分析或证明展开时才会暴露。研究者需要反复检索已有结论、比较源问题、实现候选映射、分析实例并补全证明，人工经验难以系统覆盖这一搜索过程。
 
-请见 \href{https://github.com/mohuangrui/ucasthesis/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98}{问题反馈} 
+人工智能在数学推理中的应用正由答案生成转向可核验的证明构造，并已用于形式化证明、欧氏几何证明和数学构造问题\citep{zheng2022minif2f,yang2023leandojo,trinh2024alphageometry,romeraparedes2024funsearch,hubert2026alphaproof}。这些工作表明，人工智能可以生成数学对象并依据外部反馈加以检验。但归约发现不仅需要证明给定命题，还要选择源问题并设计新的实例映射。
 
-欢迎大家有效地反馈模板不足之处，一起不断改进模板。希望大家向同事积极推广\LaTeX{}，一起更高效地做科研。
+大语言模型可以依据问题定义和已有知识生成候选映射，为归约搜索提供起点。由于单次生成难以完成检索、构造、检验和证明修正的全过程，本课题同时结合大语言模型和智能体环境，使其依据各阶段反馈持续修正归约证明，最终以期得到正确的归约。
 
-\section{模板下载}
+\section{研究意义}
 
-\begin{center}
-    \href{https://github.com/mohuangrui/ucasthesis}{Github/ucasthesis}: \url{https://github.com/mohuangrui/ucasthesis}
-\end{center}
+本课题的首要意义在于为复杂度尚未确定的 NP 判定问题寻找新的复杂性证明。若能构造满足全部条件的多项式时间归约，便可证明目标问题的 NP 困难性；结合该问题属于 NP 的证明，还可得到新的 NP 完全性结论。这类结果能够扩充已知 NP 完全问题及其归约关系，并揭示目标问题与经典困难问题之间的结构联系。无法得到完整归约时，受限问题的困难性结论、已经证明的局部构造或能够排除某类候选映射的反例，也可以缩小后续研究的范围。
+
+本课题也探索人工智能辅助理论证明的研究方法。现有人工智能定理证明工作多在给定命题后搜索证明\citep{lample2022hypertree,jiang2023draft,xin2024deepseekprover}，复杂性归约还需要选择源问题并设计新的实例映射。本课题以智能体组织大语言模型，使其依据反馈迭代构造候选，并通过数学证明核验结果，为人工智能参与开放式理论探索提供参考。
+
+已知归约任务还为考察人工智能的推理能力提供了可核对的实验对象。通过改变问题结构、组合归约长度和反馈方式，可以分析模型能否理解问题定义、建立结构对应、利用执行与证明反馈并完成多步映射。相关结果用于刻画给定模型、运行环境和计算资源条件下的能力边界，区分可由外部反馈改善的推理环节与仍需依赖新结构发现的环节。

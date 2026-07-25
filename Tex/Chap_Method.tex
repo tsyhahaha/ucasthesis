@@ -1,0 +1,222 @@
+\chapter{详细研究方案}\label{chap:method}
+
+智能体辅助归约构造是本课题详细研究方案的主线，其整体过程如图~\ref{fig:agentic-process}所示。智能体生成归约映射程序，执行环境运行该程序，NPC 归约评测框架检查输出格式并比较源、目标实例的判定结果，再把反例和运行错误反馈给智能体。归约程序通过实例检验后，其构造方法被整理为包含等价性与多项式界的数学证明。
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{method-zh}
+    \bicaption{智能体辅助归约构造过程。}{Agentic reduction construction process.}
+    \label{fig:agentic-process}
+\end{figure}
+\FloatBarrier
+
+这一过程以 NPC 归约程序构造数据集提供问题定义和检验实例，以基础代码智能体提供通用执行能力，以 NPC 归约评测框架提供格式校验、实例判定和反例反馈。前三项工作共同支持复杂度未知问题的 NPC 性证明尝试。程序检验用于发现构造错误，归约正确性仍需通过数学证明建立。
+
+\section{NPC 归约程序构造数据集}
+
+数据集中的每个任务由源问题、目标问题、输入编码和归约程序入口组成。源问题和目标问题对应语言记为 \(L_1,L_2\subseteq\Sigma^*\)。归约程序 \(f\) 接收源实例编码 \(x\)，输出目标实例编码 \(f(x)\)。程序测试还要检查输出是否符合目标问题的输入格式。记 \(\operatorname{Format}_i(z)=1\) 表示字符串 \(z\) 符合第 \(i\) 个问题的输入格式。评价端为每个问题配置实例判定程序，并记为
+
+\begin{equation}
+    \operatorname{oracle}_{L_i}(z)=
+    \begin{cases}
+        1, & z\in L_i,\\
+        0, & z\notin L_i.
+    \end{cases}
+    \label{eq:problem-oracle}
+\end{equation}
+
+\(\operatorname{oracle}_{L_i}\) 接收问题实例的编码，返回该实例对应的 YES 或 NO 判定。源问题实例判定器用于判断 \(x\)，目标问题实例判定器用于判断 \(f(x)\)，二者结果相同表示归约映射在该实例上保持了判定结果。实例判定器属于评价端，由评测框架在受控条件下调用，不作为映射 \(f\) 的可调用接口。即使实验设置允许智能体查询部分实例的判定结果，这些查询也只用于构造和调试，不进入最终映射。此处的实例判定器不改变多项式时间多对一归约的形式。实例级检验结果定义为
+
+\begin{equation}
+    V_{L_1,L_2}(f,x)=
+    \mathbf 1\!\left[
+    \operatorname{Format}_2(f(x))=1
+    \land
+    \operatorname{oracle}_{L_1}(x)
+    =
+    \operatorname{oracle}_{L_2}(f(x))
+    \right].
+    \label{eq:instance-verdict}
+\end{equation}
+
+归约程序超时、异常退出或输出格式不合法时，式~\eqref{eq:instance-verdict}取 0。设 \(H\subseteq\Sigma^*\) 为有限测试集，归约程序在 \(H\) 上的通过率为
+
+\begin{equation}
+    \operatorname{Score}(f;H)=
+    \frac{1}{|H|}
+    \sum_{x\in H}V_{L_1,L_2}(f,x).
+    \label{eq:empirical-score}
+\end{equation}
+
+该分数用于比较归约程序和反馈条件，只表示当前测试集没有发现反例。它不涉及所有输入，也不证明归约程序具有多项式时间界。数据集的定位是提供可复现的构造任务、反例和错误类型，而不是建立通用归约验证器。
+
+当前任务分为单步归约任务 T1 和组合归约任务 T4。T1 的源问题与目标问题之间存在已知直接归约，模型需要重新构造实例映射。T4 来自多步归约路径，模型需要直接生成复合映射，用于检查中间表示、参数传递和输出规模控制。数据集规模见表~\ref{tab:dataset-scale}。
+
+\begin{table}[!htbp]
+    \bicaption{NPC 归约程序构造数据集规模。}{Scale of the NPC reduction coding dataset.}
+    \label{tab:dataset-scale}
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{9pt}
+    \renewcommand{\arraystretch}{1.05}
+    \begin{tabular}{lr}
+        \hline
+        指标 & 数量\\
+        \hline
+        归约任务总数 & 162\\
+        T1 单步归约任务 & 79\\
+        T4 组合归约任务 & 83\\
+        \hline
+    \end{tabular}
+\end{table}
+
+每个问题需要给出输入编码、格式检查、判定程序。用于验证归约正确性的隐藏实例集合，由固定实例（人工维护）、针对历史错误构造的实例和随机实例组成，重点覆盖边界规模、特殊结构和参数阈值。
+
+早期 132 项任务集合已经完成不同实验设置下的消融实验。实验模型为 DeepSeek-V4-pro，每个任务设置 64 个随机测试实例。当前 162 项任务集合只作为数据集规模记录，不与早期实验结果合并统计。实验结果见表~\ref{tab:ablation-results}。
+
+\begin{table}[!htbp]
+    \bicaption{132 项任务集合上的消融实验结果。}{Ablation results on the 132-task set.}
+    \label{tab:ablation-results}
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{5pt}
+    \renewcommand{\arraystretch}{1.05}
+    \begin{tabular}{lrrr}
+        \hline
+        实验设置 & 全部任务 & T1 & T4\\
+        \hline
+        单次生成 & 24.2\% & 28.6\% & 21.7\%\\
+        仅提供任务定义的代码智能体 & 31.8\% & 42.9\% & 25.3\%\\
+        引入初步归约评测工具 & 36.4\% & 46.9\% & 30.1\%\\
+        少样本实例反馈 & 60.6\% & 73.5\% & 53.0\%\\
+        自由实例反馈 & 64.4\% & 79.6\% & 55.4\%\\
+        \hline
+    \end{tabular}
+\end{table}
+
+初步归约评测工具提供归约程序执行、目标格式检查和基础自检，但不返回实例级判定结果。少样本实例反馈由评测框架返回少量固定实例上的源、目标判定结果及不一致位置，智能体依据这些实例定位归约映射中的错误。自由实例反馈允许智能体自行构造合法实例并查询相应判定结果，用于主动检查边界条件和局部构件。两种实例反馈均只用于归约构造，不把实例判定器调用写入最终映射。
+
+结果表明，代码智能体在仅有任务定义时相对单次生成有所提升，引入初步归约评测工具后通过率继续上升，但两次增幅均较有限。少样本实例反馈带来的提升最明显，自由实例反馈在此基础上继续提升。T4 在各项设置下均低于 T1，说明组合归约中的中间编码和参数传递是主要错误来源。
+
+\section{基础代码智能体}
+
+基础代码智能体是归约实验的通用执行环境。该阶段开发任务工作空间、文件编辑、终端执行和多轮交互功能，并接入归约任务定义、模型配置、运行参数和提交接口。归约判定由后续评测框架负责，基础代码智能体主要保证数据集任务可以按统一方式运行。
+
+一次实验开始时，基础代码智能体根据任务定义创建独立工作空间，写入问题说明、输入输出格式和归约程序入口。运行时设置模型、工具权限、迭代预算和资源限制。智能体在工作空间内编辑并执行归约程序，结束时通过统一接口提交最终的映射函数。判定程序与隐藏实例保留在工作空间之外，避免归约程序直接读取评价信息。
+
+\section{NPC 归约评测框架}
+
+基础代码智能体只能获得程序运行结果，缺少归约任务所需的语义反馈。NPC 归约评测框架在其上增加专用工具和技能模块。技能模块说明多项式归约的任务形式和归约程序约束，工具用于校验目标实例格式、调用源问题与目标问题的实例判定器，并返回判定不一致的反例。反馈包括最小化后的反例、输出格式错误或运行错误，智能体据此修改局部构件或参数变换。旧反例用于回归检查，避免修改后的归约程序重复出现已经发现的错误。
+
+反例搜索的目标是寻找满足下式的源实例：
+
+\begin{equation}
+    \operatorname{Format}_1(x)=1
+    \quad\land\quad
+    \left(
+    \operatorname{Format}_2(f(x))=0
+    \ \lor\
+    \operatorname{oracle}_{L_1}(x)
+    \neq
+    \operatorname{oracle}_{L_2}(f(x))
+    \right).
+    \label{eq:counterexample-objective}
+\end{equation}
+
+若 YES 实例被映射为 NO 实例，问题通常出现在证书保留或目标构造不足；若 NO 实例被映射为 YES 实例，问题通常出现在反向约束缺失。输出格式错误则先对应到目标实例构造。评测框架保存这些反馈，供智能体修正归约程序并开展回归检查。
+
+组合任务还要保存中间实例的格式和规模界。若已知两步映射分别为 \(f\) 和 \(g\)，复合映射为 \(h(x)=g(f(x))\)。当 \(|f(x)|\leq p(|x|)\) 且 \(|g(y)|\leq q(|y|)\) 时，输出长度受 \(q(p(|x|))\) 控制。评测框架记录中间对象数量和数值位长，避免归约程序在组合后隐含指数规模输出。
+
+归约程序通过有限实例检验后，还需要整理为数学证明。归约成立所需的证明内容见表~\ref{tab:reduction-proof-requirements}。程序通过率只说明当前测试没有发现反例，不能替代表中任一项证明。
+
+\begin{table}[!htbp]
+    \bicaption{归约成立所需的证明内容。}{Proof requirements for a reduction.}
+    \label{tab:reduction-proof-requirements}
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{1.05}
+    \begin{tabular}{lp{0.38\textwidth}p{0.28\textwidth}}
+        \hline
+        证明内容 & 主要结论 & 评测框架记录\\
+        \hline
+        目标实例构造 & 输出符合目标问题输入格式 & 格式检查结果、构造说明\\
+        正向蕴含 & \(x\in L_1\Rightarrow f(x)\in L_2\) & YES 反例、证书变换线索\\
+        反向蕴含 & \(f(x)\in L_2\Rightarrow x\in L_1\) & NO 反例、缺失约束记录\\
+        运行时间 & 构造步骤关于输入长度的上界 & 程序结构、循环边界\\
+        输出长度 & 对象数量与数值位长的增长上界 & 输出规模统计、中间实例记录\\
+        \hline
+    \end{tabular}
+\end{table}
+
+\section{未知复杂度问题的 NPC 性证明尝试}
+
+前述 NPC 归约程序构造数据集、基础代码智能体和 NPC 归约评测框架均服务于提升人工智能辅助 NPC 证明的能力上限。已知归约任务用于评估和改进智能体的构造能力，实例反馈用于发现并修正归约映射中的错误，为未知问题的归约探索提供基础。
+
+在此基础上，本课题将复杂度尚未确定的 NP 判定问题作为重点探索对象，尝试完成候选源问题选择、归约构造和数学证明整理，力争解决一个问题的 NPC 性判定。
+
+\section{少样本实例反馈案例}
+
+以带负整数的子集和问题到 0-1 背包判定问题的归约为例。源实例由整数列表 \(S\) 和目标值 \(T\) 组成，目标是判断是否存在子集，其元素之和等于 \(T\)。目标实例记为 \((W,V,C,P)\)，分别表示物品重量、物品价值、背包容量和目标价值；当且仅当存在一组物品，使总重量不超过 \(C\) 且总价值不低于 \(P\) 时，目标实例为 YES。
+
+单次生成设置下得到的归约证明实现如算法~\ref{alg:reduction-pass1}所示。该实现直接令重量和价值等于源问题中的元素，并将 \(T\) 作为背包容量。
+
+\begin{algorithm}[!htbp]
+    \small
+    \caption{单次生成设置下的归约证明实现}
+    \label{alg:reduction-pass1}
+    \begin{algorithmic}[1]
+        \Require 整数列表 \(S\)，目标值 \(T\)
+        \Ensure 重量 \(W\)，价值 \(V\)，容量 \(C\)
+        \State \(S \gets [\operatorname{int}(s)\mid s\in S]\)
+        \State \(T \gets \operatorname{int}(T)\)
+        \State \(W \gets S\)
+        \State \(V \gets S\)
+        \State \(C \gets T\)
+        \State \Return \((W,V,C)\)
+    \end{algorithmic}
+\end{algorithm}
+
+该归约证明实现只适用于元素非负的特殊情形。当 \(S\) 含有负数时，\(W=S\) 会生成负重量，不符合背包问题的输入格式。该实现也没有输出目标价值 \(P\)，因而没有完整定义目标判定条件。即使所有元素均为非负数，也需要设置 \(P=T\)，才能利用 \(W=V\) 把总重量不超过 \(T\) 且总价值不低于 \(T\) 限定为子集和恰好等于 \(T\)。
+
+在少样本实例反馈设置下，评测框架返回了包含负元素的实例及判定不一致信息。智能体据此生成归约证明实现，如算法~\ref{alg:reduction-few-shot}所示。该实现记所有负元素之和为 \(N\)，把每个元素转换为绝对值，并将目标值平移为 \(T'=T-N\)。
+
+\newpage
+\begin{algorithm}[!htbp]
+    \small
+    \caption{少样本实例反馈下的归约证明实现}
+    \label{alg:reduction-few-shot}
+    \begin{algorithmic}[1]
+        \Require 整数列表 \(S\)，目标值 \(T\)
+        \Ensure 重量 \(W\)，价值 \(V\)，容量 \(C\)，目标价值 \(P\)
+        \State \(S \gets [\operatorname{int}(s)\mid s\in S]\)
+        \State \(T \gets \operatorname{int}(T)\)
+        \State \(N \gets \sum_{s\in S,\,s<0}s\)
+        \State \(W \gets [|s|\mid s\in S]\)
+        \State \(V \gets W\)
+        \State \(T' \gets T-N\)
+        \If{\(T'<0\)}
+            \State \Return \(([1],[1],0,1)\)
+        \EndIf
+        \If{\(W=\emptyset\)}
+            \State \Return \(([1],[1],0,T')\)
+        \EndIf
+        \State \(C \gets T'\)
+        \State \(P \gets T'\)
+        \State \Return \((W,V,C,P)\)
+    \end{algorithmic}
+\end{algorithm}
+
+该归约证明实现的关键是用负元素的补集表示原问题中的负数选择。设 \(A\) 为源实例选取的元素下标集合，在目标实例中选取所有属于 \(A\) 的非负元素，并选取所有不属于 \(A\) 的负元素所对应的绝对值，得到下标集合 \(B\)。两者满足
+
+\begin{equation}
+    \sum_{i\in B}|s_i|
+    =
+    \sum_{i\in A}s_i-N.
+    \label{eq:negative-subset-transform}
+\end{equation}
+
+因此，\(\sum_{i\in A}s_i=T\) 当且仅当 \(\sum_{i\in B}|s_i|=T-N=T'\)。设置 \(W=V\) 且 \(C=P=T'\) 后，背包约束要求所选物品的总重量恰好为 \(T'\)，从而保持两个问题的 YES/NO 判定。若 \(T'<0\)，非负重量之和不可能达到该值，该实现返回固定 NO 实例；空列表分支则保留空子集在 \(T'=0\) 时的判定结果。
+
+该案例表明，少样本实例反馈暴露了单次生成中未覆盖的输入域和输出字段。修正后的归约证明实现不是针对某个反例调整常数，而是补充负元素变换、目标价值和边界实例处理，形成对任务输入范围有效的统一归约构造。
+\FloatBarrier

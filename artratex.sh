@@ -1,5 +1,5 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
 #---------------------------------------------------------------------------#
 #-                       LaTeX Automated Compiler                          -#
@@ -11,100 +11,152 @@ set -e
 #- (at your option) any later version.                                     -#
 #---------------------------------------------------------------------------#
 
-#---------------------------------------------------------------------------#
-#->> Preprocessing
-#---------------------------------------------------------------------------#
-#-
-#-> Get source filename
-#-
-if [[ "$#" == "1" ]]; then
-    FileName=`echo *.tex`
-elif [[ "$#" == "2" ]]; then
-    FileName="$2"
-else
-    echo "---------------------------------------------------------------------------"
-    echo "Usage: "$0"  <l|p|x>< |a|b>  <filename>"
-    echo "TeX engine parameters: <l:lualatex>, <p:pdflatex>, <x:xelatex>"
-    echo "Bib engine parameters: < :none>, <a:bibtex>, <b:biber>"
-    echo "---------------------------------------------------------------------------"
-    exit
+usage() {
+    echo "Usage: $0 [<l|p|x>< |a|b>] [filename.tex]"
+    echo
+    echo "TeX engine: l=lualatex, p=pdflatex, x=xelatex"
+    echo "Bibliography: a=bibtex, b=biber, omitted=none"
+    echo
+    echo "Defaults: mode=xa, filename=Thesis.tex"
+    echo "Backend: ARTRATEX_BACKEND=auto|tectonic|legacy (default: auto)"
+    echo "Output:  ARTRATEX_OUTPUT_DIR=output/pdf"
+    echo "Viewer:  ARTRATEX_OPEN_PDF=1 to open the generated PDF"
+}
+
+Mode="xa"
+SourceFile="Thesis.tex"
+
+case "$#" in
+    0)
+        ;;
+    1)
+        if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+            usage
+            exit 0
+        elif [[ "$1" == *.tex ]]; then
+            SourceFile="$1"
+        else
+            Mode="$1"
+        fi
+        ;;
+    2)
+        Mode="$1"
+        SourceFile="$2"
+        ;;
+    *)
+        usage
+        exit 2
+        ;;
+esac
+
+if [[ ! -f "$SourceFile" ]]; then
+    echo "Error: source file not found: $SourceFile" >&2
+    exit 2
 fi
-FileName=${FileName/.tex}
-#-
-#-> Get tex compiler
-#-
-if [[ $1 == *'l'* ]]; then
-    TexCompiler="lualatex"
-else
-    if [[ $1 == *'p'* ]]; then
-        TexCompiler="pdflatex"
-    else
-        TexCompiler="xelatex"
-    fi
-fi
-#-
-#-> Get bib compiler
-#-
-if [[ $1 == *'a'* ]]; then
+
+case "$Mode" in
+    *l*) TexCompiler="lualatex" ;;
+    *p*) TexCompiler="pdflatex" ;;
+    *)   TexCompiler="xelatex" ;;
+esac
+
+if [[ "$Mode" == *a* ]]; then
     BibCompiler="bibtex"
-elif [[ $1 == *'b'* ]]; then
+elif [[ "$Mode" == *b* ]]; then
     BibCompiler="biber"
 else
     BibCompiler=""
 fi
-#-
-#-> Set compilation out directory resembling the inclusion hierarchy
-#-
-Tmp="Tmp"
-Tex="Tex"
-if [[ ! -d $Tmp/$Tex ]]; then
-    mkdir -p $Tmp/$Tex
-fi
-#-
-#-> Set LaTeX environmental variables to add subdirs into search path
-#-
-export TEXINPUTS=".//:$TEXINPUTS" # paths to locate .tex 
-export BIBINPUTS=".//:$BIBINPUTS" # paths to locate .bib
-export BSTINPUTS=".//:$BSTINPUTS" # paths to locate .bst
-#---------------------------------------------------------------------------#
-#->> Compiling
-#---------------------------------------------------------------------------#
-#-
-#-> Build textual content and auxiliary files
-#-
-$TexCompiler -output-directory=$Tmp $FileName || exit
-#-
-#-> Build references and links
-#-
-if [[ -n $BibCompiler ]]; then
-    #- fix the inclusion path for hierarchical auxiliary files
-    sed -i -e "s|\@input{|\@input{$Tmp/|g" $Tmp/"$FileName".aux
-    #- extract and format bibliography database via auxiliary files
-    $BibCompiler $Tmp/$FileName
-    #- insert reference indicators into textual content
-    $TexCompiler -output-directory=$Tmp $FileName || exit
-    #- refine citation references and links
-    $TexCompiler -output-directory=$Tmp $FileName || exit
-fi
-#---------------------------------------------------------------------------#
-#->> Postprocessing
-#---------------------------------------------------------------------------#
-#-
-#-> Set PDF viewer
-#-
-System_Name=`uname`
-if [[ $System_Name == "Linux" ]]; then
-    PDFviewer="xdg-open"
-elif [[ $System_Name == "Darwin" ]]; then
-    PDFviewer="open"
-else
-    PDFviewer="open"
-fi
-#-
-#-> Open the compiled file
-#-
-$PDFviewer ./$Tmp/"$FileName".pdf || exit
-echo "---------------------------------------------------------------------------"
-echo "$TexCompiler $BibCompiler "$FileName".tex finished..."
-echo "---------------------------------------------------------------------------"
 
+ProjectRoot="$(pwd -P)"
+OutputDir="${ARTRATEX_OUTPUT_DIR:-output/pdf}"
+Backend="${ARTRATEX_BACKEND:-auto}"
+OpenPdf="${ARTRATEX_OPEN_PDF:-0}"
+SourceBase="$(basename "$SourceFile")"
+DocumentName="${SourceBase%.tex}"
+
+mkdir -p "$OutputDir"
+
+if [[ "$OutputDir" = /* ]]; then
+    OutputDirAbs="$OutputDir"
+else
+    OutputDirAbs="$ProjectRoot/$OutputDir"
+fi
+
+if [[ "$Backend" != "auto" && "$Backend" != "tectonic" && "$Backend" != "legacy" ]]; then
+    echo "Error: ARTRATEX_BACKEND must be auto, tectonic, or legacy." >&2
+    exit 2
+fi
+
+if [[ "$Backend" == "auto" ]]; then
+    if command -v "$TexCompiler" >/dev/null 2>&1 &&
+       { [[ -z "$BibCompiler" ]] || command -v "$BibCompiler" >/dev/null 2>&1; }; then
+        Backend="legacy"
+    elif command -v tectonic >/dev/null 2>&1; then
+        Backend="tectonic"
+    else
+        echo "Error: neither $TexCompiler nor tectonic is available." >&2
+        exit 127
+    fi
+fi
+
+if [[ "$Backend" == "tectonic" ]]; then
+    if ! command -v tectonic >/dev/null 2>&1; then
+        echo "Error: tectonic is not installed." >&2
+        exit 127
+    fi
+
+    echo "Compiling $SourceFile with Tectonic..."
+    tectonic -X compile "$SourceFile" \
+        --outdir "$OutputDir" \
+        --keep-logs \
+        --keep-intermediates
+else
+    if ! command -v "$TexCompiler" >/dev/null 2>&1; then
+        echo "Error: $TexCompiler is not installed." >&2
+        exit 127
+    fi
+    if [[ -n "$BibCompiler" ]] && ! command -v "$BibCompiler" >/dev/null 2>&1; then
+        echo "Error: $BibCompiler is not installed." >&2
+        exit 127
+    fi
+
+    mkdir -p "$OutputDir/Tex"
+    export TEXINPUTS="$ProjectRoot//:${TEXINPUTS:-}"
+    export BIBINPUTS="$ProjectRoot//:${BIBINPUTS:-}"
+    export BSTINPUTS="$ProjectRoot//:${BSTINPUTS:-}"
+
+    echo "Compiling $SourceFile with $TexCompiler ${BibCompiler:-without bibliography processor}..."
+    "$TexCompiler" -interaction=nonstopmode -halt-on-error \
+        -output-directory="$OutputDir" "$SourceFile"
+
+    if [[ -n "$BibCompiler" ]]; then
+        (
+            cd "$OutputDirAbs"
+            "$BibCompiler" "$DocumentName"
+        )
+        "$TexCompiler" -interaction=nonstopmode -halt-on-error \
+            -output-directory="$OutputDir" "$SourceFile"
+        "$TexCompiler" -interaction=nonstopmode -halt-on-error \
+            -output-directory="$OutputDir" "$SourceFile"
+    fi
+fi
+
+PdfPath="$OutputDir/$DocumentName.pdf"
+if [[ ! -f "$PdfPath" ]]; then
+    echo "Error: compilation finished without producing $PdfPath" >&2
+    exit 1
+fi
+
+echo "Finished: $PdfPath"
+
+if [[ "$OpenPdf" == "1" ]]; then
+    case "$(uname -s)" in
+        Darwin) open "$PdfPath" ;;
+        Linux)
+            if command -v xdg-open >/dev/null 2>&1; then
+                xdg-open "$PdfPath"
+            fi
+            ;;
+    esac
+fi

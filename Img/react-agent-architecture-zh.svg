@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650">
+  <title>ReAct 智能体的基本交互结构</title>
+  <desc>大语言模型在推理、操作和观察之间循环，并在任务完成后输出结果。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#475569"/>
+    </marker>
+    <style>
+      .title { font: 600 34px "PingFang SC", "Noto Sans CJK SC", sans-serif; fill: #1f2937; }
+      .head { font: 600 27px "PingFang SC", "Noto Sans CJK SC", sans-serif; fill: #1f2937; }
+      .body { font: 400 21px "PingFang SC", "Noto Sans CJK SC", sans-serif; fill: #344258; }
+      .step { font: 500 20px "PingFang SC", "Noto Sans CJK SC", sans-serif; fill: #475569; }
+      .arrow { fill: none; stroke: #475569; stroke-width: 3; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1200" height="650" fill="#ffffff"/>
+  <text class="title" x="600" y="58" text-anchor="middle">ReAct 智能体</text>
+
+  <rect x="250" y="145" width="390" height="170" rx="12" fill="#e8f1f8" stroke="#42627f" stroke-width="2.5"/>
+  <text class="head" x="445" y="220" text-anchor="middle">大语言模型</text>
+  <text class="body" x="445" y="263" text-anchor="middle">根据当前状态生成下一步</text>
+
+  <path class="arrow" d="M250 215 H185 Q140 215 140 170 Q140 125 190 125 H330"/>
+  <text class="step" x="125" y="112">1. 推理</text>
+
+  <rect x="250" y="440" width="390" height="145" rx="12" fill="#f2f4f8" stroke="#59677d" stroke-width="2.5"/>
+  <text class="head" x="445" y="510" text-anchor="middle">外部工具</text>
+  <text class="body" x="445" y="550" text-anchor="middle">执行程序、检索或读取环境</text>
+
+  <path class="arrow" d="M355 315 V425"/>
+  <text class="step" x="245" y="382">2. 操作</text>
+  <path class="arrow" d="M535 440 V330"/>
+  <text class="step" x="555" y="382">3. 观察</text>
+
+  <rect x="850" y="155" width="270" height="150" rx="12" fill="#edf7f1" stroke="#4e8069" stroke-width="2.5"/>
+  <text class="head" x="985" y="223" text-anchor="middle">结果</text>
+  <text class="body" x="985" y="264" text-anchor="middle">任务完成后的输出</text>
+
+  <path class="arrow" d="M655 230 H835"/>
+  <text class="step" x="745" y="204" text-anchor="middle">4. 输出结果</text>
+</svg>

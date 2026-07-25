@@ -54,7 +54,7 @@
 \input{Tex/Frontinfo}%
 \begin{document}
 %-
-%-> Frontmatter: title page, abstract, content list, symbol list, preface
+%-> Frontmatter: title page, abstract, content list, terminology
 %-
 \frontmatter% initialize the environment
 \input{Tex/Frontmatter}% title page, abstract
@@ -62,12 +62,8 @@
 \linespread{1.2}% local line space
 \intobmk*{\cleardoublepage}{\contentsname}% add link to bookmark
 \tableofcontents% content catalog
-\intobmk*{\cleardoublepage}{\listfigurename}% add link to bookmark
-\listoffigures% figure catalog
-\intobmk*{\cleardoublepage}{\listtablename}% add link to bookmark
-\listoftables% table catalog
 }
-\input{Tex/Prematter}% symbol list, preface content
+\input{Tex/Prematter}% terminology correspondence
 %-
 %-> Mainmatter
 %-
@@ -92,4 +88,3 @@
 \input{Tex/Backmatter}% other information
 \end{document}
 %---------------------------------------------------------------------------%
-

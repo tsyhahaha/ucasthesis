@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="700" viewBox="0 0 1600 700">
+  <title>NPC 归约问题向程序构造任务的转换</title>
+  <desc>自然语言归约条件被改写为具有明确输入和输出的归约函数，并通过源问题和目标问题判定结果的一致性检查返回通过结果或反例。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#475569"/>
+    </marker>
+    <style>
+      .head { font: 500 34px "PingFang SC", "Noto Sans CJK SC", sans-serif; fill: #ffffff; }
+      .label { font: 500 27px "PingFang SC", "Noto Sans CJK SC", sans-serif; fill: #1f2a3d; }
+      .body { font: 400 23px "PingFang SC", "Noto Sans CJK SC", sans-serif; fill: #344258; }
+      .small { font: 400 19px "PingFang SC", "Noto Sans CJK SC", sans-serif; fill: #526177; }
+      .formula { font: 500 30px "Times New Roman", "Songti SC", serif; fill: #172033; }
+      .mono { font: 400 22px "SFMono-Regular", Menlo, Consolas, monospace; fill: #243047; }
+      .arrow-label { font: 500 21px "PingFang SC", "Noto Sans CJK SC", sans-serif; fill: #475569; }
+      .panel { stroke-width: 2.2; }
+      .inner { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
+      .arrow { fill: none; stroke: #475569; stroke-width: 3; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1600" height="700" fill="#ffffff"/>
+
+  <!-- Natural-language reduction -->
+  <rect class="panel" x="55" y="70" width="390" height="500" rx="14" fill="#edf3f8" stroke="#42627f"/>
+  <rect x="55" y="70" width="390" height="72" rx="14" fill="#42627f"/>
+  <path d="M55 128 H445 V142 H55 Z" fill="#42627f"/>
+  <text class="head" x="250" y="116" text-anchor="middle">自然语言归约问题</text>
+
+  <text class="label" x="92" y="191">已知条件</text>
+  <rect class="inner" x="85" y="211" width="330" height="110" rx="8"/>
+  <text class="body" x="112" y="255">源问题 A 与目标问题 B</text>
+  <text class="body" x="112" y="291">两类问题的实例定义</text>
+
+  <text class="label" x="92" y="371">归约要求</text>
+  <rect class="inner" x="85" y="391" width="330" height="136" rx="8"/>
+  <text class="formula" x="250" y="440" text-anchor="middle">x ∈ A ⇔ f(x) ∈ B</text>
+  <text class="body" x="250" y="482" text-anchor="middle">构造多项式时间映射 f</text>
+  <text class="small" x="250" y="511" text-anchor="middle">对任意源问题实例 x 成立</text>
+
+  <!-- Transformation arrow -->
+  <path class="arrow" d="M458 320 H548"/>
+  <text class="arrow-label" x="503" y="292" text-anchor="middle">形式化</text>
+  <text class="small" x="503" y="347" text-anchor="middle">输入、输出</text>
+  <text class="small" x="503" y="371" text-anchor="middle">与等价条件</text>
+
+  <!-- Reduction program construction task -->
+  <rect class="panel" x="560" y="70" width="480" height="500" rx="14" fill="#fbf3eb" stroke="#a45d38"/>
+  <rect x="560" y="70" width="480" height="72" rx="14" fill="#a45d38"/>
+  <path d="M560 128 H1040 V142 H560 Z" fill="#a45d38"/>
+  <text class="head" x="800" y="116" text-anchor="middle">归约程序构造任务</text>
+
+  <rect class="inner" x="595" y="181" width="410" height="104" rx="8"/>
+  <text class="body" x="624" y="223">输入：源问题实例 x</text>
+  <text class="body" x="624" y="260">输出：目标问题实例 f(x)</text>
+
+  <rect x="595" y="315" width="410" height="154" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+  <circle cx="622" cy="339" r="5" fill="#c96c58"/>
+  <circle cx="641" cy="339" r="5" fill="#d3a54a"/>
+  <circle cx="660" cy="339" r="5" fill="#599878"/>
+  <line x1="595" y1="359" x2="1005" y2="359" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text class="formula" x="800" y="401" text-anchor="middle">f(x)</text>
+  <text class="body" x="800" y="440" text-anchor="middle">构造并返回目标问题实例</text>
+
+  <text class="body" x="800" y="507" text-anchor="middle">f 是归约映射的可执行表示</text>
+  <text class="small" x="800" y="537" text-anchor="middle">约束：输出格式、多项式时间与输出规模</text>
+
+  <!-- Evaluation arrow -->
+  <path class="arrow" d="M1053 320 H1143"/>
+  <text class="arrow-label" x="1098" y="292" text-anchor="middle">执行检验</text>
+  <text class="small" x="1098" y="347" text-anchor="middle">隐藏实例 x</text>
+
+  <!-- Machine evaluation -->
+  <rect class="panel" x="1155" y="70" width="390" height="500" rx="14" fill="#f2f4f8" stroke="#59677d"/>
+  <rect x="1155" y="70" width="390" height="72" rx="14" fill="#59677d"/>
+  <path d="M1155 128 H1545 V142 H1155 Z" fill="#59677d"/>
+  <text class="head" x="1350" y="116" text-anchor="middle">自动判定与反馈</text>
+
+  <text class="label" x="1192" y="198">检查判定等价性</text>
+  <rect class="inner" x="1185" y="220" width="330" height="157" rx="8"/>
+  <text class="mono" x="1350" y="267" text-anchor="middle">oracle_A(x)</text>
+  <text class="formula" x="1350" y="309" text-anchor="middle">=</text>
+  <text class="mono" x="1350" y="349" text-anchor="middle">oracle_B(f(x))</text>
+
+  <path d="M1350 377 V410" fill="none" stroke="#475569" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <rect x="1190" y="425" width="145" height="72" rx="8" fill="#edf7f1" stroke="#4e8069" stroke-width="1.8"/>
+  <rect x="1365" y="425" width="145" height="72" rx="8" fill="#fbefef" stroke="#a34f4f" stroke-width="1.8"/>
+  <text class="body" x="1262.5" y="469" text-anchor="middle">实例通过</text>
+  <text class="body" x="1437.5" y="469" text-anchor="middle">返回反例</text>
+
+  <text class="small" x="1350" y="534" text-anchor="middle">有限测试用于发现错误，不替代归约证明</text>
+
+  <!-- Key interpretation -->
+  <line x1="285" y1="625" x2="1315" y2="625" stroke="#94a3b8" stroke-width="1.6"/>
+  <circle cx="285" cy="625" r="5" fill="#42627f"/>
+  <circle cx="800" cy="625" r="5" fill="#a45d38"/>
+  <circle cx="1315" cy="625" r="5" fill="#59677d"/>
+  <text class="small" x="800" y="662" text-anchor="middle">核心转换：把自然语言中的映射 f 改写为具有明确输入、输出和判定规则的归约函数</text>
+</svg>
